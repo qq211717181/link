@@ -87,48 +87,50 @@ const Index = () => {
         <UserTabs />
 
         {/* Categories */}
-        <div className="container mx-auto px-4 pb-20 space-y-6 max-w-7xl">
-          <CategorySection 
-            title="AI" 
-            links={aiLinks} 
-            icon={<Sparkles className="h-5 w-5 text-white" />}
-          />
-          
-          <CategorySection 
-            title="电影电视" 
-            links={movieLinks}
-            icon={<Film className="h-5 w-5 text-white" />}
-          />
-          
-          <CategorySection 
-            title="综合资源" 
-            links={resourceLinks}
-            icon={<Package className="h-5 w-5 text-white" />}
-          />
-          
-          <CategorySection 
-            title="工具" 
-            links={toolLinks}
-            icon={<Wrench className="h-5 w-5 text-white" />}
-          />
-          
-          <CategorySection 
-            title="游戏" 
-            links={gameLinks}
-            icon={<Gamepad2 className="h-5 w-5 text-white" />}
-          />
-          
-          <CategorySection 
-            title="娱乐" 
-            links={musicLinks}
-            icon={<Music className="h-5 w-5 text-white" />}
-          />
-          
-          <CategorySection 
-            title="学习" 
-            links={studyLinks}
-            icon={<GraduationCap className="h-5 w-5 text-white" />}
-          />
+        <div className="container mx-auto px-4 pb-20 max-w-7xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <CategorySection 
+              title="AI" 
+              links={aiLinks} 
+              icon={<Sparkles className="h-4 w-4 text-white/90" />}
+            />
+            
+            <CategorySection 
+              title="电影电视" 
+              links={movieLinks}
+              icon={<Film className="h-4 w-4 text-white/90" />}
+            />
+            
+            <CategorySection 
+              title="综合资源" 
+              links={resourceLinks}
+              icon={<Package className="h-4 w-4 text-white/90" />}
+            />
+            
+            <CategorySection 
+              title="工具" 
+              links={toolLinks}
+              icon={<Wrench className="h-4 w-4 text-white/90" />}
+            />
+            
+            <CategorySection 
+              title="游戏" 
+              links={gameLinks}
+              icon={<Gamepad2 className="h-4 w-4 text-white/90" />}
+            />
+            
+            <CategorySection 
+              title="娱乐" 
+              links={musicLinks}
+              icon={<Music className="h-4 w-4 text-white/90" />}
+            />
+            
+            <CategorySection 
+              title="学习" 
+              links={studyLinks}
+              icon={<GraduationCap className="h-4 w-4 text-white/90" />}
+            />
+          </div>
         </div>
 
         {/* Footer */}

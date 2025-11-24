@@ -7,16 +7,15 @@ const users = [
 
 export const UserTabs = () => {
   return (
-    <div className="flex items-center justify-center gap-2 mb-8 flex-wrap px-4">
-      <div className="flex items-center gap-2 px-4 py-2 glass-card rounded-full">
-        <Clock className="h-4 w-4 text-white/80" />
-        <span className="text-sm text-white/90">我的足迹</span>
-      </div>
+    <div className="flex items-center justify-center gap-2 mb-6 flex-wrap px-4">
+      <button className="px-3 py-1.5 glass-card rounded-md text-xs text-white/90 hover:bg-white/15 transition-all duration-200">
+        首页
+      </button>
       
       {users.map((user, index) => (
         <button
           key={index}
-          className="px-4 py-2 glass-card rounded-full text-sm text-white/90 hover:bg-white/20 transition-all duration-200 hover:scale-105"
+          className="px-3 py-1.5 glass-card rounded-md text-xs text-white/80 hover:bg-white/15 hover:text-white/95 transition-all duration-200"
         >
           {user}
         </button>
