@@ -1,6 +1,12 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 
 type SearchEngine = "baidu" | "google" | "bing";
@@ -37,27 +43,45 @@ export const SearchBar = () => {
 
   return (
     <form onSubmit={handleSearch} className="w-full max-w-3xl mx-auto">
-      <div className="flex gap-3 items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60" />
-          <Input
-            type="text"
-            placeholder={`输入关键词，回车使用${SEARCH_ENGINES[searchEngine].name}搜索`}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-14 pr-5 py-7 text-base glass-card-strong border-white/20 focus-visible:ring-white/30 placeholder:text-white/50 text-white rounded-full shadow-lg"
-          />
-        </div>
-        <Select value={searchEngine} onValueChange={handleEngineChange}>
-          <SelectTrigger className="w-[120px] glass-card-strong border-white/20 text-white py-7 rounded-full shadow-lg">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="baidu">百度</SelectItem>
-            <SelectItem value="google">谷歌</SelectItem>
-            <SelectItem value="bing">必应</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="relative flex items-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              size="icon"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 border-none text-white"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="glass-card-strong border-white/20">
+            <DropdownMenuItem
+              onClick={() => handleEngineChange("baidu")}
+              className={`text-white cursor-pointer ${searchEngine === "baidu" ? "bg-white/20" : ""}`}
+            >
+              百度
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleEngineChange("google")}
+              className={`text-white cursor-pointer ${searchEngine === "google" ? "bg-white/20" : ""}`}
+            >
+              谷歌
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleEngineChange("bing")}
+              className={`text-white cursor-pointer ${searchEngine === "bing" ? "bg-white/20" : ""}`}
+            >
+              必应
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Input
+          type="text"
+          placeholder={`输入可站内搜索，回车触发${SEARCH_ENGINES[searchEngine].name}`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-20 pr-5 py-7 text-base glass-card-strong border-white/15 focus-visible:ring-white/30 placeholder:text-white/50 text-white rounded-full"
+        />
       </div>
     </form>
   );
