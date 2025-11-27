@@ -32,22 +32,21 @@ export const CategorySection = ({ title, links, icon }: CategorySectionProps) =>
       </div>
       
       {isExpanded && (
-        <div className="space-y-1">
+        <div className="grid grid-cols-3 gap-2">
           {links.map((link, index) => (
             <a
               key={index}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-2 px-3 py-2 rounded hover:bg-white/10 transition-all duration-200"
+              className="group flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-white/10 transition-all duration-200"
             >
               {link.icon && (
-                <span className="text-base flex-shrink-0">{link.icon}</span>
+                <span className="text-sm flex-shrink-0">{link.icon}</span>
               )}
-              <span className="text-sm text-white/80 group-hover:text-white flex-1">
+              <span className="text-xs text-white/80 group-hover:text-white truncate">
                 {link.title}
               </span>
-              <ExternalLink className="h-3 w-3 text-white/40 group-hover:text-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
             </a>
           ))}
         </div>
