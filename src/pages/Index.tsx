@@ -1,7 +1,7 @@
 import { SearchBar } from "@/components/SearchBar";
 import { CategorySection } from "@/components/CategorySection";
 import { UserTabs } from "@/components/UserTabs";
-import { Sparkles, Film, Package, Wrench, Gamepad2, Music, GraduationCap } from "lucide-react";
+import { Sparkles, Film, Package, Wrench, Gamepad2, Music, GraduationCap, Download, BookOpen, Image, Cloud, Heart, Tv } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const Index = () => {
@@ -11,6 +11,7 @@ const Index = () => {
     { title: "Midjourney", url: "https://midjourney.com", icon: "🎨" },
     { title: "文心一言", url: "https://yiyan.baidu.com", icon: "💬" },
     { title: "通义千问", url: "https://tongyi.aliyun.com", icon: "🌟" },
+    { title: "Poe", url: "https://poe.com", icon: "💡" },
   ];
 
   const movieLinks = [
@@ -22,6 +23,8 @@ const Index = () => {
     { title: "555电影", url: "https://www.555dy.vip", icon: "🎞️" },
     { title: "人人影视", url: "https://www.rrys.tv", icon: "👥" },
     { title: "HDmoli", url: "https://www.hdmoli.com", icon: "🎥" },
+    { title: "独播库", url: "https://www.duboku.tv", icon: "📽️" },
+    { title: "电影先生", url: "https://www.dianying.fm", icon: "🎦" },
   ];
 
   const resourceLinks = [
@@ -30,36 +33,87 @@ const Index = () => {
     { title: "阿虚同学的储物间", url: "https://axutongxue.com", icon: "📦" },
     { title: "咖喱君的资源库", url: "https://kaliju.com", icon: "📚" },
     { title: "telegram中文搜索", url: "https://www.sssoou.com", icon: "📱" },
+    { title: "不死鸟", url: "https://iao.su", icon: "🔥" },
+    { title: "合集网", url: "https://www.heji.ltd", icon: "📑" },
   ];
 
   const toolLinks = [
-    { title: "Kindle漫画", url: "https://volmoe.com", icon: "📖" },
-    { title: "在线工具", url: "https://tool.lu", icon: "🛠️" },
-    { title: "ACGE软件", url: "https://www.aacgge.com", icon: "💾" },
-    { title: "天空动漫", url: "https://www.tkdm.net", icon: "🎌" },
+    { title: "在线PS", url: "https://www.photopea.com", icon: "🎨" },
+    { title: "兔2工具", url: "https://www.tool2.cn", icon: "🐰" },
+    { title: "程序员工具箱", url: "https://tool.lu", icon: "🛠️" },
+    { title: "表格转换", url: "https://tableconvert.com", icon: "📊" },
+    { title: "临时邮箱", url: "https://temp-mail.org", icon: "📧" },
+    { title: "Snapdrop", url: "https://snapdrop.net", icon: "📤" },
+    { title: "奶牛快传", url: "https://cowtransfer.com", icon: "🐮" },
+  ];
+
+  const softwareLinks = [
     { title: "423Down", url: "https://www.423down.com", icon: "⬇️" },
-    { title: "MacWk软件", url: "https://macwk.com", icon: "🍎" },
+    { title: "小众软件", url: "https://www.appinn.com", icon: "💻" },
+    { title: "少数派", url: "https://sspai.com", icon: "🔧" },
+    { title: "MacWk", url: "https://macwk.com", icon: "🍎" },
+    { title: "果核剥壳", url: "https://www.ghxi.com", icon: "🥥" },
+    { title: "Chrome插件", url: "https://www.crxsoso.com", icon: "🔌" },
   ];
 
   const gameLinks = [
-    { title: "Steam游戏", url: "https://store.steampowered.com", icon: "🎮" },
+    { title: "Steam", url: "https://store.steampowered.com", icon: "🎮" },
     { title: "游侠网", url: "https://www.ali213.net", icon: "⚔️" },
     { title: "3DM", url: "https://www.3dmgame.com", icon: "🎯" },
     { title: "小黑盒", url: "https://www.xiaoheihe.cn", icon: "📦" },
+    { title: "游民星空", url: "https://www.gamersky.com", icon: "🌟" },
+    { title: "小霸王", url: "https://www.yikm.net", icon: "🕹️" },
+  ];
+
+  const animeLinks = [
+    { title: "樱花动漫", url: "https://www.yhdm.tv", icon: "🌸" },
+    { title: "AGE动漫", url: "https://www.agemys.net", icon: "🎌" },
+    { title: "风车动漫", url: "https://www.fengche.co", icon: "🎏" },
+    { title: "哔哩哔哩", url: "https://www.bilibili.com", icon: "📺" },
+    { title: "ACG饭团", url: "https://www.acgfantuan.com", icon: "🍙" },
+    { title: "动漫岛", url: "https://www.dmdm.cc", icon: "🏝️" },
   ];
 
   const musicLinks = [
-    { title: "QQ音乐", url: "https://y.qq.com", icon: "🎵" },
+    { title: "Listen 1", url: "https://listen1.github.io/listen1", icon: "🎵" },
     { title: "网易云音乐", url: "https://music.163.com", icon: "🎶" },
-    { title: "酷狗音乐", url: "https://www.kugou.com", icon: "🎸" },
+    { title: "QQ音乐", url: "https://y.qq.com", icon: "🎸" },
+    { title: "音悦台", url: "https://www.yinyuetai.com", icon: "🎤" },
+    { title: "5sing", url: "https://5sing.kugou.com", icon: "🎧" },
+  ];
+
+  const bookLinks = [
+    { title: "鸠摩搜书", url: "https://www.jiumodiary.com", icon: "🔍" },
+    { title: "笔趣阁", url: "https://www.biquge.com", icon: "📖" },
+    { title: "Z-Library", url: "https://zh.zlibrary-global.se", icon: "📚" },
+    { title: "微信读书", url: "https://weread.qq.com", icon: "📱" },
+    { title: "书格", url: "https://new.shuge.org", icon: "📜" },
   ];
 
   const studyLinks = [
-    { title: "B站课程", url: "https://www.bilibili.com", icon: "📺" },
-    { title: "慕课网", url: "https://www.imooc.com", icon: "💻" },
-    { title: "CSDN", url: "https://www.csdn.net", icon: "👨‍💻" },
     { title: "GitHub", url: "https://github.com", icon: "🐙" },
     { title: "Stack Overflow", url: "https://stackoverflow.com", icon: "📚" },
+    { title: "SCI-HUB", url: "https://sci-hub.se", icon: "🔬" },
+    { title: "Google镜像", url: "https://ac.scmor.com", icon: "🔎" },
+    { title: "全历史", url: "https://www.allhistory.com", icon: "📜" },
+    { title: "Grammarly", url: "https://www.grammarly.com", icon: "✍️" },
+    { title: "DeepL翻译", url: "https://www.deepl.com", icon: "🌐" },
+  ];
+
+  const imageLinks = [
+    { title: "Unsplash", url: "https://unsplash.com", icon: "📷" },
+    { title: "Pexels", url: "https://www.pexels.com", icon: "🖼️" },
+    { title: "必应壁纸", url: "https://www.bing.com/images", icon: "🌄" },
+    { title: "极简壁纸", url: "https://bz.zzzmh.cn", icon: "🎨" },
+    { title: "彼岸壁纸", url: "https://pic.netbian.com", icon: "🖥️" },
+  ];
+
+  const cloudLinks = [
+    { title: "百度网盘", url: "https://pan.baidu.com", icon: "☁️" },
+    { title: "阿里云盘", url: "https://www.aliyundrive.com", icon: "💾" },
+    { title: "蓝奏云", url: "https://www.lanzou.com", icon: "📁" },
+    { title: "奶牛快传", url: "https://cowtransfer.com", icon: "🐮" },
+    { title: "文叔叔", url: "https://www.wenshushu.cn", icon: "👨" },
   ];
 
   return (
@@ -112,23 +166,53 @@ const Index = () => {
               links={toolLinks}
               icon={<Wrench className="h-4 w-4 text-white/90" />}
             />
+
+            <CategorySection 
+              title="软件" 
+              links={softwareLinks}
+              icon={<Download className="h-4 w-4 text-white/90" />}
+            />
             
             <CategorySection 
               title="游戏" 
               links={gameLinks}
               icon={<Gamepad2 className="h-4 w-4 text-white/90" />}
             />
+
+            <CategorySection 
+              title="动漫" 
+              links={animeLinks}
+              icon={<Tv className="h-4 w-4 text-white/90" />}
+            />
             
             <CategorySection 
-              title="娱乐" 
+              title="音乐" 
               links={musicLinks}
               icon={<Music className="h-4 w-4 text-white/90" />}
+            />
+
+            <CategorySection 
+              title="书架" 
+              links={bookLinks}
+              icon={<BookOpen className="h-4 w-4 text-white/90" />}
             />
             
             <CategorySection 
               title="学习" 
               links={studyLinks}
               icon={<GraduationCap className="h-4 w-4 text-white/90" />}
+            />
+
+            <CategorySection 
+              title="图片壁纸" 
+              links={imageLinks}
+              icon={<Image className="h-4 w-4 text-white/90" />}
+            />
+
+            <CategorySection 
+              title="云盘" 
+              links={cloudLinks}
+              icon={<Cloud className="h-4 w-4 text-white/90" />}
             />
           </div>
         </div>
