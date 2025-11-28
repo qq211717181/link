@@ -42,16 +42,16 @@ export const SearchBar = () => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="w-full max-w-3xl mx-auto">
+    <form onSubmit={handleSearch} className="w-full max-w-2xl mx-auto">
       <div className="relative flex items-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               type="button"
               size="icon"
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 border-none text-white"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 border-none text-white"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="glass-card-strong border-white/20">
@@ -80,7 +80,7 @@ export const SearchBar = () => {
           placeholder={`输入可站内搜索，回车触发${SEARCH_ENGINES[searchEngine].name}`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-20 pr-5 py-7 text-base glass-card-strong border-white/15 focus-visible:ring-white/30 placeholder:text-white/50 text-white rounded-full"
+          className="pl-14 pr-4 py-5 text-sm glass-card-strong border-white/15 focus-visible:ring-white/30 placeholder:text-white/50 text-white rounded-full"
         />
       </div>
     </form>
