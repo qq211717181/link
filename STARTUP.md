@@ -26,13 +26,16 @@ npm install
 
 You need to run both the backend and frontend servers simultaneously.
 
-### Option 1: Using the Convenience Script (Recommended)
+### Option 1: Single Command (Recommended)
 
-We have added a script to run both servers with a single command:
+The default `npm run dev` script now launches **both** servers via `concurrently`.
 
 ```bash
-npm run dev:all
+npm run dev
 ```
+
+This will start Vite on port `8080` and proxy all `/api` requests to the Express
+server that runs on `http://localhost:3001`.
 
 ### Option 2: Running Manually (Two Terminals)
 
@@ -41,16 +44,22 @@ npm run dev:all
 cd server
 npm run dev
 ```
-The backend will start on `http://localhost:3001` (or the port specified in .env).
 
-**Terminal 2 (Frontend):**
+**Terminal 2 (Frontend only):**
 ```bash
-# In the root directory
-npm run dev
+npm run dev:client
 ```
-The frontend will start on `http://localhost:8080` (or similar, check console output).
+
+You can also run `npm run dev:server` from the project root if you prefer not
+to `cd` into `server/`.
 
 ## Environment Variables
 
 The backend requires a `.env` file in the `server/` directory.
 Ensure it contains necessary configurations (e.g., PORT, JWT_SECRET).
+
+For the frontend you can optionally create a `.env` file in the project root.
+Set `VITE_API_URL=https://<your-domain>/api` when deploying so the browser
+talks to the correct backend host. During local development requests
+automatically go through the Vite `/api` proxy, so no additional configuration
+is needed.

@@ -6,7 +6,7 @@ const authRoutes = require('./routes/auth');
 const bookmarkRoutes = require('./routes/bookmarks');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3001;
 
 // 中间件
 app.use(cors());
@@ -38,6 +38,21 @@ app.use((err, req, res, next) => {
 });
 
 // 启动服务器
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const startServer = (port, attempts = 0) => {
+    const server = app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE' && attempts < 10) {
+            const nextPort = port + 1;
+            console.warn(`Port ${port} in use, retrying with port ${nextPort}`);
+            startServer(nextPort, attempts + 1);
+        } else {
+            console.error('Failed to start server:', err);
+            process.exit(1);
+        }
+    });
+};
+
+startServer(DEFAULT_PORT);

@@ -1,6 +1,22 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api';
+const stripTrailingSlash = (url: string) => url.replace(/\/+$/, '');
+
+const resolveApiBaseUrl = () => {
+    const envUrl = import.meta.env?.VITE_API_URL?.trim();
+    if (envUrl) {
+        return stripTrailingSlash(envUrl);
+    }
+
+    if (typeof window !== 'undefined') {
+        const { origin } = window.location;
+        return `${stripTrailingSlash(origin)}/api`;
+    }
+
+    return 'http://localhost:3001/api';
+};
+
+const API_URL = resolveApiBaseUrl();
 
 const api = axios.create({
     baseURL: API_URL,
