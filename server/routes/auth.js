@@ -7,12 +7,23 @@ const db = require('../database');
 
 const authMiddleware = require('../middleware/auth');
 
+const ensureJwtSecret = () => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        console.error('JWT_SECRET is not configured');
+    }
+    return secret;
+};
+
 // 注册
 router.post('/register',
     [
         body('username').trim().isLength({ min: 3 }).withMessage('用户名至少3个字符'),
         body('password').isLength({ min: 6 }).withMessage('密码至少6个字符'),
-        body('email').optional().isEmail().withMessage('请输入有效的邮箱')
+        body('email')
+            .optional({ nullable: true, checkFalsy: true })
+            .isEmail()
+            .withMessage('请输入有效的邮箱')
     ],
     async (req, res) => {
         const errors = validationResult(req);
@@ -21,12 +32,24 @@ router.post('/register',
         }
 
         const { username, password, email } = req.body;
+        const normalizedEmail = email?.trim() || null;
+        const jwtSecret = ensureJwtSecret();
+        if (!jwtSecret) {
+            return res.status(500).json({ error: '服务器配置错误，请联系管理员' });
+        }
 
         try {
             // 检查用户名是否存在
             const existingUser = await db.prepare('SELECT id FROM users WHERE username = ?').get(username);
             if (existingUser) {
                 return res.status(400).json({ error: '用户名已存在' });
+            }
+
+            if (normalizedEmail) {
+                const existingEmail = await db.prepare('SELECT id FROM users WHERE email = ?').get(normalizedEmail);
+                if (existingEmail) {
+                    return res.status(400).json({ error: '邮箱已被使用' });
+                }
             }
 
             // 哈希密码
@@ -36,13 +59,13 @@ router.post('/register',
             const result = await db.prepare('INSERT INTO users (username, password, email) VALUES (?, ?, ?)').run(
                 username,
                 hashedPassword,
-                email || null
+                normalizedEmail
             );
 
             // 生成 JWT
             const token = jwt.sign(
                 { userId: result.lastInsertRowid, username },
-                process.env.JWT_SECRET,
+                jwtSecret,
                 { expiresIn: '7d' }
             );
 
@@ -55,6 +78,9 @@ router.post('/register',
                 }
             });
         } catch (error) {
+            if (error?.message?.includes('UNIQUE constraint failed: users.email')) {
+                return res.status(400).json({ error: '邮箱已被使用' });
+            }
             console.error('注册错误:', error);
             res.status(500).json({ error: '服务器错误' });
         }
@@ -75,6 +101,10 @@ router.post('/login',
 
         const { username, password } = req.body;
         console.log('登录请求:', { username, password: '***' });
+        const jwtSecret = ensureJwtSecret();
+        if (!jwtSecret) {
+            return res.status(500).json({ error: '服务器配置错误，请联系管理员' });
+        }
 
         try {
             // 查找用户 - 支持用户名或邮箱
@@ -99,7 +129,7 @@ router.post('/login',
             // 生成 JWT
             const token = jwt.sign(
                 { userId: user.id, username: user.username },
-                process.env.JWT_SECRET,
+                jwtSecret,
                 { expiresIn: '7d' }
             );
 

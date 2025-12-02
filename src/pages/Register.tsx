@@ -17,9 +17,17 @@ const Register = () => {
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        const trimmedUsername = username.trim();
+        const trimmedEmail = email.trim();
 
         try {
-            const response = await auth.register({ username, password, email });
+            const payload = {
+                username: trimmedUsername,
+                password,
+                ...(trimmedEmail ? { email: trimmedEmail } : {}),
+            };
+
+            const response = await auth.register(payload);
             const { token, user } = response.data;
 
             localStorage.setItem('token', token);
@@ -32,9 +40,10 @@ const Register = () => {
 
             navigate('/admin');
         } catch (error: any) {
+            const validationMessage = error.response?.data?.errors?.[0]?.msg;
             toast({
                 title: "注册失败",
-                description: error.response?.data?.error || "注册过程中出现错误",
+                description: validationMessage || error.response?.data?.error || "注册过程中出现错误",
                 variant: "destructive",
             });
         } finally {
