@@ -20,6 +20,17 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 
+// 部署配置：生产环境服务静态文件
+// 只有在 production 环境或者找不到 API 路由时才生效
+if (process.env.NODE_ENV === 'production' || process.env.SERVE_STATIC === 'true') {
+    const distPath = path.join(__dirname, '../dist');
+    app.use(express.static(distPath));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+}
+
 // 错误处理中间件
 app.use((err, req, res, next) => {
     console.error(err.stack);
