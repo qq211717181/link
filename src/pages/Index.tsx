@@ -1,11 +1,12 @@
 import { SearchBar } from "@/components/SearchBar";
 import { CategorySection } from "@/components/CategorySection";
-import { UserTabs } from "@/components/UserTabs";
+
 import { Sparkles, Film, Package, Wrench, Gamepad2, Music, GraduationCap, Download, BookOpen, Image, Cloud, Tv, FolderOpen, LogIn, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { bookmarks, auth } from "@/lib/api";
+import { getImageUrl } from "@/lib/utils";
 import heroBg from "@/assets/hero-bg.jpg";
 
 interface BookmarkFolder {
@@ -23,11 +24,15 @@ const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [wallpaper, setWallpaper] = useState<string>('');
+  const [uiSettings, setUiSettings] = useState<any>(null);
 
   useEffect(() => {
     const currentUser = auth.getCurrentUser();
     setUser(currentUser);
     setWallpaper(currentUser?.wallpaper || '');
+    if (currentUser?.ui_settings) {
+      setUiSettings(currentUser.ui_settings);
+    }
 
     if (currentUser) {
       fetchUserBookmarks();
@@ -60,7 +65,7 @@ const Index = () => {
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-fixed relative"
-      style={{ backgroundImage: `url(${wallpaper || heroBg})` }}
+      style={{ backgroundImage: `url(${getImageUrl(wallpaper) || heroBg})` }}
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
@@ -95,11 +100,11 @@ const Index = () => {
 
         {/* Search Bar */}
         <div className="px-4 mb-12">
-          <SearchBar />
+          <SearchBar styleSettings={uiSettings?.searchBar} />
         </div>
 
         {/* User Tabs */}
-        <UserTabs />
+
 
         {/* Categories */}
         <div className="container mx-auto px-4 pb-20 max-w-7xl">
@@ -111,6 +116,7 @@ const Index = () => {
                 title={folder.name}
                 links={folder.links}
                 icon={<FolderOpen className="h-4 w-4 text-white/90" />}
+                styleSettings={uiSettings?.category}
               />
             ))}
 

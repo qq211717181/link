@@ -55,7 +55,17 @@ export const auth = {
     login: (data: any) => api.post('/auth/login', data),
     register: (data: any) => api.post('/auth/register', data),
     getUserInfo: () => api.get('/auth/me'),
+    uploadWallpaper: (file: File) => {
+        const formData = new FormData();
+        formData.append('wallpaper', file);
+        return api.post('/auth/wallpaper/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
     updateWallpaper: (wallpaper: string) => api.put('/auth/wallpaper', { wallpaper }),
+    updateUiSettings: (settings: any) => api.put('/auth/ui-settings', { ui_settings: settings }),
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');

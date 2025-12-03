@@ -2,11 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const authRoutes = require('./routes/auth');
 const bookmarkRoutes = require('./routes/bookmarks');
 
 const app = express();
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3001;
+
+// 确保 uploads 目录存在
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // 中间件
 app.use(cors());

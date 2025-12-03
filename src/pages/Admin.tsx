@@ -6,7 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { bookmarks, auth } from "@/lib/api";
 import { BookmarkImporter } from "@/components/BookmarkImporter";
 import { CategorySection } from "@/components/CategorySection";
+import { SearchBar } from "@/components/SearchBar";
 import { LogOut, Home, FolderOpen, Trash2, Image as ImageIcon } from "lucide-react";
+import { getImageUrl } from "@/lib/utils";
 import heroBg from "@/assets/hero-bg.jpg";
 
 interface BookmarkFolder {
@@ -18,12 +20,43 @@ interface BookmarkFolder {
     }>;
 }
 
+interface UiSettings {
+    searchBar: {
+        maxWidth: number;
+        paddingY: number;
+        borderRadius: number;
+        blur: number;
+        opacity: number;
+    };
+    category: {
+        borderRadius: number;
+        blur: number;
+        opacity: number;
+    };
+}
+
+const DEFAULT_UI_SETTINGS: UiSettings = {
+    searchBar: {
+        maxWidth: 768,
+        paddingY: 28,
+        borderRadius: 9999,
+        blur: 12,
+        opacity: 10,
+    },
+    category: {
+        borderRadius: 12,
+        blur: 24,
+        opacity: 10,
+    },
+};
+
 const Admin = () => {
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [wallpaper, setWallpaper] = useState<string>('');
     const [wallpaperInput, setWallpaperInput] = useState<string>('');
+    const [uiSettings, setUiSettings] = useState<UiSettings>(DEFAULT_UI_SETTINGS);
     const navigate = useNavigate();
     const { toast } = useToast();
     const user = auth.getCurrentUser();
@@ -42,6 +75,9 @@ const Admin = () => {
             const response = await auth.getUserInfo();
             setWallpaper(response.data.wallpaper || '');
             setWallpaperInput(response.data.wallpaper || '');
+            if (response.data.ui_settings) {
+                setUiSettings(response.data.ui_settings);
+            }
         } catch (error) {
             console.error("获取用户信息失败", error);
         }
@@ -211,6 +247,35 @@ const Admin = () => {
         }
     };
 
+    const handleUiSettingsSave = async () => {
+        try {
+            await auth.updateUiSettings(uiSettings);
+
+            const currentUser = auth.getCurrentUser();
+            if (currentUser) {
+                localStorage.setItem('user', JSON.stringify({
+                    ...currentUser,
+                    ui_settings: uiSettings
+                }));
+            }
+
+            toast({ title: "UI 设置更新成功" });
+        } catch (error) {
+            console.error("更新 UI 设置失败", error);
+            toast({ title: "更新 UI 设置失败", variant: "destructive" });
+        }
+    };
+
+    const updateUiSetting = (section: 'searchBar' | 'category', key: string, value: number) => {
+        setUiSettings(prev => ({
+            ...prev,
+            [section]: {
+                ...prev[section],
+                [key]: value
+            }
+        }));
+    };
+
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center text-white">加载中...</div>;
     }
@@ -218,7 +283,7 @@ const Admin = () => {
     return (
         <div
             className="min-h-screen bg-cover bg-center bg-fixed relative"
-            style={{ backgroundImage: `url(${wallpaper || heroBg})` }}
+            style={{ backgroundImage: `url(${getImageUrl(wallpaper) || heroBg})` }}
         >
             <div className="absolute inset-0 bg-black/60" />
 
@@ -249,25 +314,248 @@ const Admin = () => {
                 {/* Wallpaper Settings */}
                 <div className="glass-card rounded-xl p-8 mb-12">
                     <h2 className="text-xl font-bold text-white mb-6">壁纸设置</h2>
-                    <div className="flex gap-4 items-end">
-                        <div className="flex-1">
-                            <label className="text-sm text-white/80 mb-2 block">壁纸图片 URL</label>
-                            <Input
-                                value={wallpaperInput}
-                                onChange={(e) => setWallpaperInput(e.target.value)}
-                                placeholder="https://example.com/wallpaper.jpg"
-                                className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
-                            />
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-sm text-white/80 mb-2 block">上传壁纸图片</label>
+                            <div className="flex gap-4 items-end">
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            try {
+                                                const response = await auth.uploadWallpaper(file);
+                                                const newWallpaper = response.data.wallpaper;
+                                                setWallpaper(newWallpaper);
+                                                setWallpaperInput('');
+
+                                                const currentUser = auth.getCurrentUser();
+                                                if (currentUser) {
+                                                    localStorage.setItem('user', JSON.stringify({
+                                                        ...currentUser,
+                                                        wallpaper: newWallpaper
+                                                    }));
+                                                }
+
+                                                toast({ title: "壁纸上传成功" });
+                                            } catch (error) {
+                                                console.error("上传壁纸失败", error);
+                                                toast({ title: "上传壁纸失败", variant: "destructive" });
+                                            }
+                                        }
+                                    }}
+                                    className="flex-1 bg-white/5 border-white/20 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 cursor-pointer"
+                                />
+                            </div>
+                            <p className="text-white/50 text-xs mt-2">支持 JPG、PNG、GIF、WEBP 格式，最大 30MB</p>
                         </div>
+
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-white/10" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-transparent px-2 text-white/40">或</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-white/80 mb-2 block">使用图片 URL</label>
+                            <div className="flex gap-4 items-end">
+                                <Input
+                                    value={wallpaperInput}
+                                    onChange={(e) => setWallpaperInput(e.target.value)}
+                                    placeholder="https://example.com/wallpaper.jpg"
+                                    className="flex-1 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                                />
+                                <Button
+                                    onClick={handleWallpaperSave}
+                                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20"
+                                >
+                                    <ImageIcon className="h-4 w-4 mr-2" />
+                                    保存 URL
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* UI Customization Settings */}
+                <div className="glass-card rounded-xl p-8 mb-12">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-white">界面个性化设置</h2>
                         <Button
-                            onClick={handleWallpaperSave}
+                            onClick={handleUiSettingsSave}
                             className="bg-white/10 hover:bg-white/20 text-white border border-white/20"
                         >
                             <ImageIcon className="h-4 w-4 mr-2" />
-                            保存壁纸
+                            保存设置
                         </Button>
                     </div>
-                    <p className="text-white/50 text-sm mt-3">提示：输入图片 URL 后点击保存，主页和管理页将使用新壁纸。留空则使用默认壁纸。</p>
+
+                    {/* Live Preview */}
+                    <div className="mb-8 p-8 rounded-xl border border-white/10 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-black/40 -z-10" />
+                        <div className="absolute inset-0 bg-cover bg-center opacity-50 -z-20" style={{ backgroundImage: `url(${wallpaper || heroBg})` }} />
+
+                        <h3 className="text-lg font-semibold text-white mb-6">实时预览</h3>
+
+                        <div className="space-y-8">
+                            <div className="flex justify-center">
+                                <SearchBar styleSettings={uiSettings.searchBar} />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                                <CategorySection
+                                    title="预览分类"
+                                    links={[
+                                        { title: "示例链接 1", url: "#", icon: "🔗" },
+                                        { title: "示例链接 2", url: "#", icon: "🌟" },
+                                        { title: "示例链接 3", url: "#", icon: "📝" },
+                                    ]}
+                                    icon={<FolderOpen className="h-4 w-4 text-white/90" />}
+                                    styleSettings={uiSettings.category}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Search Bar Settings */}
+                        <div className="bg-white/5 p-6 rounded-lg">
+                            <h3 className="text-lg font-semibold text-white mb-4">搜索框样式</h3>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">宽度 (px)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.searchBar.maxWidth}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="300"
+                                        max="1200"
+                                        value={uiSettings.searchBar.maxWidth}
+                                        onChange={(e) => updateUiSetting('searchBar', 'maxWidth', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">高度/内边距 (px)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.searchBar.paddingY}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="10"
+                                        max="50"
+                                        value={uiSettings.searchBar.paddingY}
+                                        onChange={(e) => updateUiSetting('searchBar', 'paddingY', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">圆角 (px)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.searchBar.borderRadius}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={uiSettings.searchBar.borderRadius}
+                                        onChange={(e) => updateUiSetting('searchBar', 'borderRadius', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">磨砂模糊度 (px)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.searchBar.blur}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="50"
+                                        value={uiSettings.searchBar.blur}
+                                        onChange={(e) => updateUiSetting('searchBar', 'blur', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">透明度 (%)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.searchBar.opacity}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={uiSettings.searchBar.opacity}
+                                        onChange={(e) => updateUiSetting('searchBar', 'opacity', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Category Settings */}
+                        <div className="bg-white/5 p-6 rounded-lg">
+                            <h3 className="text-lg font-semibold text-white mb-4">文件夹/分类样式</h3>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">圆角 (px)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.category.borderRadius}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="50"
+                                        value={uiSettings.category.borderRadius}
+                                        onChange={(e) => updateUiSetting('category', 'borderRadius', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">磨砂模糊度 (px)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.category.blur}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="50"
+                                        value={uiSettings.category.blur}
+                                        onChange={(e) => updateUiSetting('category', 'blur', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between mb-2">
+                                        <label className="text-sm text-white/80">透明度 (%)</label>
+                                        <span className="text-sm text-white/60">{uiSettings.category.opacity}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={uiSettings.category.opacity}
+                                        onChange={(e) => updateUiSetting('category', 'opacity', Number(e.target.value))}
+                                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Import and Actions Section */}
@@ -327,6 +615,7 @@ const Admin = () => {
                                     isEditable={true}
                                     onAddLink={(link) => handleAddLink(category.id, link)}
                                     onDeleteLink={(link) => handleDeleteLink(link)}
+                                    styleSettings={uiSettings.category}
                                 />
                                 <button
                                     onClick={() => handleDeleteCategory(category.id)}

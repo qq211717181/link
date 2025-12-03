@@ -86,6 +86,17 @@ const init = async () => {
       }
     }
 
+    // 尝试添加 ui_settings 列（如果不存在）
+    try {
+      await run(`ALTER TABLE users ADD COLUMN ui_settings TEXT`);
+      console.log('Added ui_settings column to users table');
+    } catch (err) {
+      // 如果列已存在，忽略错误
+      if (!err.message.includes('duplicate column name')) {
+        console.log('UI settings column check:', err.message);
+      }
+    }
+
     console.log('Database initialized successfully');
   } catch (err) {
     console.error('Database initialization failed:', err);

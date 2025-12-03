@@ -27,6 +27,11 @@ interface CategorySectionProps {
   isEditable?: boolean;
   onAddLink?: (link: Link) => void;
   onDeleteLink?: (link: Link) => void;
+  styleSettings?: {
+    borderRadius?: number;
+    blur?: number;
+    opacity?: number;
+  };
 }
 
 export const CategorySection = ({
@@ -36,7 +41,8 @@ export const CategorySection = ({
   isDraggable = false,
   isEditable = false,
   onAddLink,
-  onDeleteLink
+  onDeleteLink,
+  styleSettings
 }: CategorySectionProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [categoryLinks, setCategoryLinks] = useState<Link[]>(links);
@@ -80,7 +86,15 @@ export const CategorySection = ({
   };
 
   return (
-    <div className="glass-card rounded-xl p-5 transition-all duration-300">
+    <div
+      className="glass-card p-5 transition-all duration-300"
+      style={{
+        borderRadius: styleSettings?.borderRadius !== undefined ? `${styleSettings.borderRadius}px` : '0.75rem',
+        background: `linear-gradient(135deg, rgba(255, 255, 255, ${(styleSettings?.opacity ?? 10) / 100}) 0%, rgba(255, 255, 255, ${(styleSettings?.opacity ?? 5) / 100}) 100%)`,
+        backdropFilter: `blur(${styleSettings?.blur ?? 12}px)`,
+        WebkitBackdropFilter: `blur(${styleSettings?.blur ?? 12}px)`,
+      }}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {isDraggable && (

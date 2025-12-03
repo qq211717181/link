@@ -1,12 +1,22 @@
-import { Search, PawPrint } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 import { SearchEngineSelector, SearchEngine } from "./SearchEngineSelector";
 
-const DEFAULT_ENGINE: SearchEngine = { id: "baidu", name: "百度", url: "https://www.baidu.com/s?wd=" };
+const DEFAULT_ENGINE: SearchEngine = { id: "bing", name: "必应", url: "https://www.bing.com/search?q=" };
 
-export const SearchBar = () => {
+interface SearchBarProps {
+  styleSettings?: {
+    maxWidth?: number;
+    paddingY?: number;
+    borderRadius?: number;
+    blur?: number;
+    opacity?: number;
+  };
+}
+
+export const SearchBar = ({ styleSettings }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchEngine, setSearchEngine] = useState<SearchEngine>(DEFAULT_ENGINE);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
@@ -50,7 +60,11 @@ export const SearchBar = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto relative" ref={containerRef}>
+    <div
+      className="w-full mx-auto relative transition-all duration-300"
+      ref={containerRef}
+      style={{ maxWidth: styleSettings?.maxWidth ? `${styleSettings.maxWidth}px` : '48rem' }}
+    >
       <form onSubmit={handleSearch}>
         <div className="relative flex items-center">
           {/* 左侧图标/选择器触发器 */}
@@ -58,9 +72,9 @@ export const SearchBar = () => {
             type="button"
             size="icon"
             onClick={() => setIsSelectorOpen(!isSelectorOpen)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-transparent hover:bg-white/10 border-none text-white shadow-none transition-colors"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-transparent hover:bg-white/10 border-none text-white shadow-none transition-colors flex items-center justify-center"
           >
-            <PawPrint className="h-6 w-6 fill-current opacity-90" />
+            <span className="text-sm font-bold opacity-90">{searchEngine.name}</span>
           </Button>
 
           {/* 搜索输入框 */}
@@ -70,11 +84,14 @@ export const SearchBar = () => {
               placeholder={`输入可站内搜索，回车触发${searchEngine.name}`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-14 pr-14 py-7 text-base border-white/10 focus-visible:ring-0 focus-visible:border-white/20 placeholder:text-white/60 text-white rounded-full shadow-lg transition-all duration-300"
+              className="w-full pl-14 pr-14 text-base border-white/10 focus-visible:ring-0 focus-visible:border-white/20 placeholder:text-white/60 text-white shadow-lg transition-all duration-300"
               style={{
-                background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
+                paddingTop: styleSettings?.paddingY ? `${styleSettings.paddingY}px` : '1.75rem',
+                paddingBottom: styleSettings?.paddingY ? `${styleSettings.paddingY}px` : '1.75rem',
+                borderRadius: styleSettings?.borderRadius !== undefined ? `${styleSettings.borderRadius}px` : '9999px',
+                background: `linear-gradient(90deg, rgba(255, 255, 255, ${(styleSettings?.opacity ?? 15) / 100}) 0%, rgba(255, 255, 255, ${(styleSettings?.opacity ?? 10) / 100}) 100%)`,
+                backdropFilter: `blur(${styleSettings?.blur ?? 12}px)`,
+                WebkitBackdropFilter: `blur(${styleSettings?.blur ?? 12}px)`,
               }}
             />
             {/* 悬停时的光晕效果 */}
@@ -85,9 +102,9 @@ export const SearchBar = () => {
           <Button
             type="submit"
             size="icon"
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-transparent hover:bg-white/10 border-none text-white shadow-none transition-colors z-20"
+            className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-transparent hover:bg-white/10 border-none text-white shadow-none transition-colors z-20 flex items-center justify-center"
           >
-            <Search className="h-6 w-6 opacity-90" />
+            <Search className="h-7 w-7 opacity-90" strokeWidth={2.5} />
           </Button>
         </div>
       </form>
