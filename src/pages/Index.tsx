@@ -25,6 +25,32 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [wallpaper, setWallpaper] = useState<string>('');
   const [uiSettings, setUiSettings] = useState<any>(null);
+  const [poetry, setPoetry] = useState<string>('');
+  const [poetryLoading, setPoetryLoading] = useState<boolean>(true);
+
+  // 本地诗词库作为备选
+  const localPoetry = [
+    '海内存知己，天涯若比邻',
+    '春眠不觉晓，处处闻啼鸟',
+    '床前明月光，疑是地上霜',
+    '举头望明月，低头思故乡',
+    '窗含西岭千秋雪，门泊东吴万里船',
+    '两个黄鹂鸣翠柳，一行白鹭上青天',
+    '欲穷千里目，更上一层楼',
+    '会当凌绝顶，一览众山小',
+    '随风潜入夜，润物细无声',
+    '野火烧不尽，春风吹又生',
+    '不知细叶谁裁出，二月春风似剪刀',
+    '等闲识得东风面，万紫千红总是春',
+    '竹外桃花三两枝，春江水暖鸭先知',
+    '接天莲叶无穷碧，映日荷花别样红',
+    '停车坐爱枫林晚，霜叶红于二月花',
+    '千山鸟飞绝，万径人踪灭',
+    '孤舟蓑笠翁，独钓寒江雪',
+    '采菊东篱下，悠然见南山',
+    '明月松间照，清泉石上流',
+    '空山新雨后，天气晚来秋',
+  ];
 
   useEffect(() => {
     const currentUser = auth.getCurrentUser();
@@ -39,7 +65,32 @@ const Index = () => {
     } else {
       setLoading(false);
     }
+
+    // 获取随机诗词
+    fetchPoetry();
   }, []);
+
+  const fetchPoetry = async () => {
+    try {
+      // 使用今日诗词API
+      const response = await fetch('https://v1.jinrishici.com/all.json');
+      const data = await response.json();
+      if (data && data.content) {
+        setPoetry(data.content);
+      } else {
+        // API返回数据格式不对，使用本地随机诗词
+        const randomIndex = Math.floor(Math.random() * localPoetry.length);
+        setPoetry(localPoetry[randomIndex]);
+      }
+    } catch (error) {
+      // API调用失败，使用本地随机诗词
+      console.log('诗词API调用失败，使用本地诗词库');
+      const randomIndex = Math.floor(Math.random() * localPoetry.length);
+      setPoetry(localPoetry[randomIndex]);
+    } finally {
+      setPoetryLoading(false);
+    }
+  };
 
   const fetchUserBookmarks = async () => {
     try {
@@ -76,7 +127,11 @@ const Index = () => {
         <header className="pt-8 pb-8 px-8 flex justify-between items-start">
           <div className="flex-1 text-center">
             <h1 className="text-5xl font-bold text-white mb-3 text-shadow">iLinks</h1>
-            <p className="text-white/80 text-lg text-shadow">海内存知己，天涯若比邻</p>
+            {!poetryLoading && poetry && (
+              <p className="text-white/80 text-lg text-shadow animate-in fade-in duration-500">
+                {poetry}
+              </p>
+            )}
           </div>
 
           <div className="absolute right-8 top-8">
