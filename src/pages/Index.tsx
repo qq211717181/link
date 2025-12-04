@@ -1,13 +1,14 @@
 import { SearchBar } from "@/components/SearchBar";
 import { CategorySection } from "@/components/CategorySection";
 
-import { Sparkles, Film, Package, Wrench, Gamepad2, Music, GraduationCap, Download, BookOpen, Image, Cloud, Tv, FolderOpen, LogIn, User } from "lucide-react";
+import { Sparkles, Film, Package, Wrench, Gamepad2, Music, GraduationCap, Download, BookOpen, Image, Cloud, Tv, FolderOpen, LogIn, User, Cat } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { bookmarks, auth } from "@/lib/api";
 import { getImageUrl } from "@/lib/utils";
 import heroBg from "@/assets/hero-bg.jpg";
+import { useToast } from "@/hooks/use-toast";
 
 interface BookmarkFolder {
   id?: number;
@@ -27,6 +28,7 @@ const Index = () => {
   const [uiSettings, setUiSettings] = useState<any>(null);
   const [poetry, setPoetry] = useState<string>('');
   const [poetryLoading, setPoetryLoading] = useState<boolean>(true);
+  const { toast } = useToast();
 
   // 本地诗词库作为备选
   const localPoetry = [
@@ -103,6 +105,31 @@ const Index = () => {
     }
   };
 
+  const handleAddLink = async (categoryId: number, link: any) => {
+    try {
+      await bookmarks.addLink(categoryId, link);
+      toast({ title: "添加成功" });
+      fetchUserBookmarks();
+    } catch (error) {
+      console.error("添加链接失败", error);
+      toast({ title: "添加失败", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteLink = async (link: any) => {
+    if (!link.id) return;
+    if (!window.confirm(`确定要删除链接 "${link.title}" 吗？`)) return;
+
+    try {
+      await bookmarks.deleteLink(link.id);
+      toast({ title: "删除成功" });
+      fetchUserBookmarks();
+    } catch (error) {
+      console.error("删除链接失败", error);
+      toast({ title: "删除失败", variant: "destructive" });
+    }
+  };
+
   // 默认数据 (仅在未登录或无数据时显示)
   const defaultAiLinks = [
     { title: "ChatGPT免费", url: "https://chatgpt.com", icon: "🤖" },
@@ -137,8 +164,8 @@ const Index = () => {
           <div className="absolute right-8 top-8">
             {user ? (
               <Link to="/admin">
-                <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-                  <User className="h-4 w-4 mr-2" />
+                <Button variant="ghost" className="bg-transparent text-white/80 hover:text-white hover:bg-white/10 border-none">
+                  <Cat className="h-4 w-4 mr-2" />
                   管理后台
                 </Button>
               </Link>
@@ -170,8 +197,12 @@ const Index = () => {
                 key={`user-${folder.id || index}`}
                 title={folder.name}
                 links={folder.links}
-                icon={<FolderOpen className="h-4 w-4 text-white/90" />}
+                icon={<Cat className="h-4 w-4 text-white/60" />}
                 styleSettings={uiSettings?.category}
+                isEditable={true}
+                showDelete={false}
+                onAddLink={(link) => handleAddLink(folder.id, link)}
+                onDeleteLink={handleDeleteLink}
               />
             ))}
 

@@ -7,9 +7,18 @@ import { bookmarks, auth } from "@/lib/api";
 import { BookmarkImporter } from "@/components/BookmarkImporter";
 import { CategorySection } from "@/components/CategorySection";
 import { SearchBar } from "@/components/SearchBar";
-import { LogOut, Home, FolderOpen, Trash2, Image as ImageIcon } from "lucide-react";
+import { LogOut, Home, FolderOpen, Trash2, Image as ImageIcon, Plus, Cat } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import heroBg from "@/assets/hero-bg.jpg";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface BookmarkFolder {
     name: string;
@@ -57,6 +66,9 @@ const Admin = () => {
     const [wallpaper, setWallpaper] = useState<string>('');
     const [wallpaperInput, setWallpaperInput] = useState<string>('');
     const [uiSettings, setUiSettings] = useState<UiSettings>(DEFAULT_UI_SETTINGS);
+    const [newCategoryName, setNewCategoryName] = useState<string>('');
+    const [newCategoryIcon, setNewCategoryIcon] = useState<string>('');
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const navigate = useNavigate();
     const { toast } = useToast();
     const user = auth.getCurrentUser();
@@ -274,6 +286,35 @@ const Admin = () => {
                 [key]: value
             }
         }));
+    };
+
+    const handleCreateCategory = async () => {
+        if (!newCategoryName.trim()) {
+            toast({
+                title: "分类名称不能为空",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        try {
+            await bookmarks.createCategory({
+                name: newCategoryName,
+                icon: newCategoryIcon || '📁'
+            });
+
+            toast({ title: "创建成功" });
+            setNewCategoryName('');
+            setNewCategoryIcon('');
+            setIsCreateDialogOpen(false);
+            fetchBookmarks();
+        } catch (error) {
+            console.error("创建分类失败", error);
+            toast({
+                title: "创建失败",
+                variant: "destructive"
+            });
+        }
     };
 
     if (loading) {
@@ -595,7 +636,53 @@ const Admin = () => {
 
                 {/* Manage Section */}
                 <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-white mb-6">分类管理 (可拖拽排序)</h2>
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-white">分类管理 (可拖拽排序)</h2>
+                        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    添加新分类
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="glass-card-strong border-white/20 text-white">
+                                <DialogHeader>
+                                    <DialogTitle className="text-white">创建新分类</DialogTitle>
+                                    <DialogDescription className="text-white/60">
+                                        创建一个新的书签分类
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-white/80">分类名称</label>
+                                        <Input
+                                            value={newCategoryName}
+                                            onChange={(e) => setNewCategoryName(e.target.value)}
+                                            placeholder="输入分类名称"
+                                            className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-white/80">图标 (emoji)</label>
+                                        <Input
+                                            value={newCategoryIcon}
+                                            onChange={(e) => setNewCategoryIcon(e.target.value)}
+                                            placeholder="📁"
+                                            className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button
+                                        onClick={handleCreateCategory}
+                                        className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+                                    >
+                                        创建分类
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {categories.map((category, index) => (
                             <div
@@ -610,20 +697,14 @@ const Admin = () => {
                                 <CategorySection
                                     title={category.name}
                                     links={category.links}
-                                    icon={<FolderOpen className="h-4 w-4 text-white/90" />}
+                                    icon={<Cat className="h-4 w-4 text-white/60" />}
                                     isDraggable={true}
                                     isEditable={true}
                                     onAddLink={(link) => handleAddLink(category.id, link)}
                                     onDeleteLink={(link) => handleDeleteLink(link)}
+                                    onDeleteCategory={() => handleDeleteCategory(category.id)}
                                     styleSettings={uiSettings.category}
                                 />
-                                <button
-                                    onClick={() => handleDeleteCategory(category.id)}
-                                    className="absolute top-5 right-14 p-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                                    title="删除分类"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
                             </div>
                         ))}
                         {categories.length === 0 && (

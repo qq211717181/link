@@ -25,8 +25,10 @@ interface CategorySectionProps {
   icon?: React.ReactNode;
   isDraggable?: boolean;
   isEditable?: boolean;
+  showDelete?: boolean;
   onAddLink?: (link: Link) => void;
   onDeleteLink?: (link: Link) => void;
+  onDeleteCategory?: () => void;
   styleSettings?: {
     borderRadius?: number;
     blur?: number;
@@ -40,8 +42,10 @@ export const CategorySection = ({
   icon,
   isDraggable = false,
   isEditable = false,
+  showDelete = true,
   onAddLink,
   onDeleteLink,
+  onDeleteCategory,
   styleSettings
 }: CategorySectionProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -58,9 +62,14 @@ export const CategorySection = ({
 
   const handleAddLink = () => {
     if (newLinkTitle && newLinkUrl) {
+      let processedUrl = newLinkUrl.trim();
+      if (!/^https?:\/\//i.test(processedUrl)) {
+        processedUrl = `https://${processedUrl}`;
+      }
+
       const newLink = {
         title: newLinkTitle,
-        url: newLinkUrl,
+        url: processedUrl,
         icon: newLinkIcon || "🔗"
       };
 
@@ -83,6 +92,13 @@ export const CategorySection = ({
     } else {
       setCategoryLinks(categoryLinks.filter((_, i) => i !== index));
     }
+  };
+
+  const getProcessedUrl = (url: string) => {
+    if (!url) return '#';
+    const trimmedUrl = url.trim();
+    if (/^https?:\/\//i.test(trimmedUrl)) return trimmedUrl;
+    return `https://${trimmedUrl}`;
   };
 
   return (
@@ -161,6 +177,15 @@ export const CategorySection = ({
               </DialogContent>
             </Dialog>
           )}
+          {isEditable && onDeleteCategory && (
+            <button
+              onClick={onDeleteCategory}
+              className="p-1 hover:bg-white/10 rounded transition-colors group/delete"
+              title="删除分类"
+            >
+              <Trash2 className="h-4 w-4 text-white/70 group-hover/delete:text-red-400 transition-colors" />
+            </button>
+          )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1 hover:bg-white/10 rounded transition-colors"
@@ -179,7 +204,7 @@ export const CategorySection = ({
               className="group relative flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-white/10 transition-all duration-200"
             >
               <a
-                href={link.url}
+                href={getProcessedUrl(link.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 flex-1 min-w-0"
@@ -205,7 +230,7 @@ export const CategorySection = ({
                   {link.title}
                 </span>
               </a>
-              {isEditable && (
+              {isEditable && showDelete && (
                 <button
                   onClick={() => handleDeleteLink(link, index)}
                   className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-0.5 hover:bg-red-500/20 rounded transition-all"
